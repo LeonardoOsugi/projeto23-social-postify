@@ -1,25 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { User } from './entity/Users';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
+
+import * as bcrypt from 'bcrypt';
+import { CreateSigninDTO } from './dto/create-signin.dto';
+import { UsersRepository } from './repository/user.repository';
 
 @Injectable()
 export class UsersService {
-  users: User[] = [];
 
-  findUserNotPass(body: CreateUserDTO) {
-    throw new Error('Method not implemented.');
-  }
-  findUserPass() {
-    throw new Error('Method not implemented.');
-  }
-  createSignin(): void {
-    throw new Error('Method not implemented.');
-  }
-  createUser({name, email, password, avatar}: CreateUserDTO){
-    const user = new User(name, email, password, avatar)
+  constructor(private readonly usersRepository: UsersRepository) {}
+  
+  async createUser(data: CreateUserDTO){
+    const emailExist = await this.usersRepository.findUserByEmail(data.email);
 
-    this.users.push(user);
+    if(emailExist) throw new HttpException('User already exists', HttpStatus.CONFLICT);
 
-    return this.users
+    const hashPassword = bcrypt.hashSync(data.password, 10);
+
+    return await this.usersRepository.createUser({...data, password: hashPassword});
   }
+  // async createSignin(data: CreateSigninDTO){
+  //   const emailExist = await this.usersRepository.findUserByEmail(data.email);
+
+  //   const isPasswordValid = bcrypt.compareSync(data.password, emailExist.password);
+
+  //   if(!emailExist || !isPasswordValid) throw new HttpException('User Unouthorized', HttpStatus.UNAUTHORIZED);
+
+  // }
 }
