@@ -12,7 +12,13 @@ export class CreateUserDTO {
 
     @IsString()
     @IsNotEmpty()
-    @IsStrongPassword({minLength: 6})
+    @IsStrongPassword({
+        minLength: 6,  
+        minLowercase: 0,
+        minSymbols: 0,
+        minUppercase: 0,
+        minNumbers: 0,
+    })
     @MaxLength(20)
     password: string;
 
