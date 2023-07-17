@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -18,5 +17,22 @@ model User {
   avatar String 
   created_at DateTime @default(now())
 
+  publications Publication[] @relation("UserToPublication")
+
   @@map("users")
+}
+
+model Publication {
+  id Int @id @default(autoincrement())
+  user_id Int
+  image String 
+  title String @unique
+  text String
+  dateToPublish String
+  published Boolean @default(false)
+  socialMedia String
+  created_at DateTime @default(now())
+  user      User     @relation("UserToPublication",fields: [user_id], references: [id])
+
+  @@map("publications")
 }
